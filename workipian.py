@@ -9,9 +9,7 @@
 ##
 ##  Note: prerequisite: modules--> openpyxl, tkinter
 
-#todo: - exception handling if workbook already open
-#      - check if workbook empty, cos append simply appends to last occurence w/o checking actual data inside workbook
-
+## todo: Content checking
 
 import openpyxl
 import os
@@ -20,16 +18,16 @@ from openpyxl.styles import Alignment
 from tkinter import *
 import tkinter.messagebox
 
-
 # Workbook name
 filename = "my_Work_sheet.xlsx"
+sheetname= "Sheet1"
 
 # Function which updates the workbook at backend.
 def updateWorksheet(data):
     wb = openpyxl.load_workbook(filename)
     print(wb.get_sheet_names())
 
-    sheet = wb.get_sheet_by_name('Sheet1')
+    sheet = wb.get_sheet_by_name(sheetname)
 
     # Column 'A' always depicts the todays date.
     today = datetime.strftime(datetime.now(), ' %d-%m-%y')
@@ -48,14 +46,7 @@ def updateWorksheet(data):
     wb.save(filename)
 
 
-
-# updateWorksheet('completed ip related work \n also blah blah blah')
-
-
 def addRecord():
-
-    # disabling the 'add' button. User can add only one data per day. [Did this for simplicity.]
-    addButton.config(state='disabled')
 
     # Reading from text box:
     # The first part, "1.0" means that the input should be read from line one, character zero.
@@ -63,13 +54,28 @@ def addRecord():
     # The only issue with this is that it actually adds a newline to our input.
     # So, in order to fix it we should change END to end-1c.
     #  The -1c deletes 1 character, while -2c would mean delete two characters, and so on.
+    try:
+        data = editBox.get("1.0","end-1c")
+        updateWorksheet(data)
+        print("Record Added succefully..!!")
+        tkinter.messagebox.showinfo('Success', 'Work Record is added successfully !!!')
 
-    data = editBox.get("1.0","end-1c")
-    updateWorksheet(data)
-    print("Record Added succefully..!!")
-    tkinter.messagebox.showinfo('Completed', 'Work done today is added successfully !!!')
+        # disabling the 'add' button. User can add only one data per day. [Did this for simplicity.]
+        addButton.config(state='disabled')
+    except PermissionError:
+        tkinter.messagebox.showerror('Error', 'Excelsheet is already open. Please close it.')
 
 
+# checking if Workbook exists or not.
+
+if True != os.path.exists(filename):
+    # Create workbook if not exists
+    wb = openpyxl.Workbook() # This creates new workbook
+    wb.create_sheet(index=0, title=sheetname)          # by default added to last
+    wb.save(filename)
+    print('No such file exists created')
+
+# main routine
 root = Tk()
 root.title("Personal Worksheet")
 root.resizable(0,0)
