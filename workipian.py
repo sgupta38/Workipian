@@ -39,7 +39,7 @@ class Workipian:
         root = Tk()
         root.title("Personal Worksheet")
         root.resizable(0,0)
-        root.iconbitmap('writer.ico')
+        #root.iconbitmap('writer.ico')  #Bug on ubuntu. @todo later
         self.frame = Frame(root, width=500, height=500)
         self.editBox=Text(self.frame, height=10, width=60)
         self.editBox.pack(pady=20)
